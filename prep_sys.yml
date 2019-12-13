@@ -1,7 +1,6 @@
 #-------------------------------------------------------------------------------------------#
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
-#
 #-------------------------------------------------------------------------------------------#
 - hosts: dev
   gather_facts: false
@@ -22,7 +21,7 @@
   - name: Subscribe to RHN
     become: yes
     redhat_subscription: username={{ RHN_username }} password={{ RHN_password }} pool={{ RHN_poolname }}
-    when: result.rc|int > 0
+    when: status.rc|int > 0
 
   - name: Disable Repositories 
     become: yes
@@ -33,7 +32,7 @@
   - name: Enable Repositories
     become: yes
     rhsm_repository: 
-      name: "rhel-7-server-rpms rhel-7-server-optional-rpms rhel-7-server-extras-rpms rh-gluster-3-for-rhel-7-server-rpms"
+      name: "rhel-7-server-rpms,rhel-7-server-optional-rpms,rhel-7-server-extras-rpms,rh-gluster-3-for-rhel-7-server-rpms rh-gluster-3-samba-for-rhel-7-server-rpms rh-gluster-3-samba-for-rhel-7-server-rpms rh-gluster-3-nfs-for-rhel-7-server-rpms rhel-ha-for-rhel-7-server-rpms"
       state: enabled
     
   - name: Update system

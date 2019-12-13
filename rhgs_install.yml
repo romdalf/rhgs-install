@@ -1,0 +1,15 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+- hosts: dev
+  gather_facts: false
+
+  tasks:
+
+  - name: Install RHGS
+    become: yes
+    yum:
+      name: "glusterfs-server glusterfs-client"
+      state: latest
+
