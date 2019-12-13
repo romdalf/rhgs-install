@@ -1,0 +1,44 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#
+#-------------------------------------------------------------------------------------------#
+- hosts: dev
+  gather_facts: false
+
+  vars_prompt:
+  - name: "rhn_user"
+    prompt: "RHN/Satellite Username"
+  - name: "rhn_pass"
+    prompt: "RHN/Satellite Password"
+
+  tasks:
+  - name: Verify if host is already registered 
+    become: yes
+    ignore_errors: true
+    shell: "subscription-manager status"
+    register: status
+
+  - name: Subscribe to RHN
+    become: yes
+    redhat_subscription: username={{ RHN_username }} password={{ RHN_password }} pool={{ RHN_poolname }}
+    when: result.rc|int > 0
+
+  - name: Disable Repositories 
+    become: yes
+    rhsm_repository:
+      name: "*"
+      state: disabled
+  
+  - name: Enable Repositories
+    become: yes
+    rhsm_repository: 
+      name: "rhel-7-server-rpms rhel-7-server-optional-rpms rhel-7-server-extras-rpms rh-gluster-3-for-rhel-7-server-rpms"
+      state: enabled
+    
+  - name: Update system
+    become: yes
+    yum:
+      name: "*"
+      state: latest
+
