@@ -10,6 +10,17 @@
   - name: Install RHGS
     become: yes
     yum:
-      name: "glusterfs-server glusterfs-client"
+      name: "redhat-storage-server"
       state: latest
 
+  - name: Install RHGS SMB Support
+    become: yes
+    yum: 
+      name: "@RH-Gluster-Samba-Server"
+      state: latest
+
+  - name: Install RHGS SMB AD Integration
+    become: yes
+    yum: 
+      name: "@RH-Gluster-AD-Integration"
+      state: latest
