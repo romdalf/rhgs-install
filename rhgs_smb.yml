@@ -33,22 +33,3 @@
         state: latest
     when: nfs == 'yes'
 
-  - name: Configure firewall (TCP) for RHGS node communication
-    become: yes
-    firewalld: 
-      zone: public
-      port: "{{ item }}/tcp"
-      permanent: true
-      state: enabled
-      immediate: yes
-    with_items: [22,111,24007,24009,49152-49664]
-
-  - name: Configure firewall (UDP) for RHGS node communication
-    become: yes
-    firewalld: 
-      zone: public
-      port: "{{ item }}/udp"
-      permanent: true
-      state: enabled
-      immediate: yes
-    with_items: [111]
