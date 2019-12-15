@@ -1,0 +1,29 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+- name: Install RHGS
+  become: yes
+  yum:
+    name: "redhat-storage-server"
+    state: latest
+
+- name: Configure firewall (TCP) for RHGS node communication
+  become: yes
+  firewalld: 
+    zone: public
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  with_items: [22,111,24007,24009,49152-49664]
+
+- name: Configure firewall (UDP) for RHGS node communication
+  become: yes
+  firewalld: 
+    zone: public
+    port: "{{ item }}/udp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  with_items: [111]

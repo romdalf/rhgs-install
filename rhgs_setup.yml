@@ -1,0 +1,31 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+- hosts: "{{ host }}"
+  gather_facts: false
+  vars_prompt:
+  - name: "rhn_user"
+    prompt: "RHN/Satellite Username"
+  - name: "rhn_pass"
+    prompt: "RHN/Satellite Password"
+  roles:
+  - role: roles/sysprep
+
+- hosts: "{{ host }}"
+  gather_facts: false
+  roles: 
+  - role: roles/rhgs_install
+
+- hosts: "{{ host }}"
+  gather_facts: false
+  roles: 
+  - role: roles/rhgs_nfs
+  when: nfs=yes
+
+- hosts: "{{ host }}"
+  gather_facts: false
+  roles: 
+  - role: roles/rhgs_smb
+  when: smb=yes
+
