@@ -29,19 +29,22 @@
   with_items: [111]
 
 - name: Enable Gluster Service
+  become: yes
   service:
     name: glusterd
     enabled: yes
 
 - name: Start Gluster Service
+  become: yes
   service: 
     name: glusterd
     state: started
 
 - name: Peer gluster nodes
+  become: yes
   gluster_peer:
     state: present
     nodes: 
       - "{{ item }}"
-    with_items: "{{ host }}"
-    
+  loop: "{{ groups['all'] }}"
+
