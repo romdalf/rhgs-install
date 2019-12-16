@@ -2,6 +2,12 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
+- name: Enable Repositories
+  become: yes
+  rhsm_repository: 
+    name: "rh-gluster-3-samba-for-rhel-7-server-rpms"
+    state: enabled
+
 - name: Install RHGS SMB Support
   become: yes
   yum: 
@@ -13,7 +19,8 @@
   yum: 
     name: "@RH-Gluster-AD-Integration"
     state: latest
-
+  when: smbad=yes
+  
 - name: Configure firewall (TCP) for SMB
   become: yes
   firewalld: 

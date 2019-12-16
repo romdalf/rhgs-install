@@ -6,12 +6,12 @@
   gather_facts: false
   vars_prompt:
   - name: "rhn_user"
-    prompt: "RHN/Satellite Username"
+    prompt: "RHN Username"
     private: no
   - name: "rhn_pass"
-    prompt: "RHN/Satellite Password"
+    prompt: "RHN Password"
   - name: "rhn_pool"
-    prompt: "RHN/Satellite Pool"
+    prompt: "RHN Pool"
     private: no
   roles:
   - role: roles/sysprep
