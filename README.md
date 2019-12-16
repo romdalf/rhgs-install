@@ -1,5 +1,5 @@
 # rhgs_install
-Necessary plays to deploy Red Hat Gluster Storage
+Plays to deploy Red Hat Gluster Storage
 
 ## Introduction 
 These set of plays allows the installation of RHGS on a defined set of hosts defined in the inventory file. Currently, the plays have been tested using RHN and not Satellite. 
