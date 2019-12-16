@@ -36,7 +36,7 @@
 - name: Start Gluster Service
   service: 
     name: glusterd
-    state: start
+    state: started
 
 - name: Peer gluster nodes
   gluster_peer:
