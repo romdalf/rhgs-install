@@ -7,8 +7,12 @@
   vars_prompt:
   - name: "rhn_user"
     prompt: "RHN/Satellite Username"
+    private: no
   - name: "rhn_pass"
     prompt: "RHN/Satellite Password"
+  - name: "rhn_pool"
+    prompt: "RHN/Satellite Pool"
+    private: no
   roles:
   - role: roles/sysprep
 
@@ -21,11 +25,11 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_nfs
-  when: nfs=yes
+    when: nfs=yes
 
 - hosts: "{{ host }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
-  when: smb=yes
+    when: smb=yes
 

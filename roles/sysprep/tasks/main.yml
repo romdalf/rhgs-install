@@ -8,9 +8,12 @@
   shell: "subscription-manager status"
   register: status
 
+- debug:
+    msg: "Logging in as {{ rhn_user }} with pool {{ rhn_pool }}" 
+
 - name: Subscribe to RHN
   become: yes
-  redhat_subscription: username={{ RHN_username }} password={{ RHN_password }} pool={{ RHN_poolname }}
+  redhat_subscription: username={{ rhn_user }} password={{ rhn_pass }} pool={{ rhn_pool }}
   when: status.rc|int > 0
 
 - name: Disable Repositories 

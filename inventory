@@ -1,3 +1,4 @@
 [dev]
-node01 ansible_host=192.168.122.157 
+rhel7-01 ansible_host=192.168.122.157 
+rhel7-02 ansible_host=192.168.122.18
 
