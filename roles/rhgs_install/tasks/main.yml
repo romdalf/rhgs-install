@@ -27,3 +27,21 @@
     state: enabled
     immediate: yes
   with_items: [111]
+
+- name: Enable Gluster Service
+  service:
+    name: glusterd
+    enabled: yes
+
+- name: Start Gluster Service
+  service: 
+    name: glusterd
+    state: start
+
+- name: Peer gluster nodes
+  gluster_peer:
+    state: present
+    nodes: 
+      - "{{ item }}"
+    with_items: "{{ host }}"
+    

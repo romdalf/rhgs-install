@@ -20,7 +20,7 @@
     name: "@RH-Gluster-AD-Integration"
     state: latest
   when: smbad=yes
-  
+
 - name: Configure firewall (TCP) for SMB
   become: yes
   firewalld: 

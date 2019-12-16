@@ -38,3 +38,4 @@
 # add hostnames to hosts file 
 # generate a ssh key and copy over all nodes 
 # define a rhel release to be fixed on with "releasever"
+# add conditional for Satellite and related tasks
