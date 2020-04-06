@@ -11,19 +11,18 @@
   gather_facts: false
 
   pre_tasks:
-    - pause:
-        prompt: "RHN username"
-      when: sysprep == 'yes'
-      register: rhn_user
-    - pause:
-        prompt: "RHN password"
-        echo: no
-      when: sysprep == 'yes'
-      register: rhn_pass
-    - pause:
-        prompt: "RHN Pool ID"
-      when: sysprep == 'yes'
-      register: rhn_pool
+    - block:
+        - pause:
+            prompt: "RHN username"
+          register: rhn_user
+        - pause:
+            prompt: "RHN password"
+            echo: no
+          register: rhn_pass
+        - pause:
+            prompt: "RHN Pool ID"
+          register: rhn_pool
+      when: sysprep == 'yes' 
   roles:
   - role: roles/sysprep
     when: sysprep == 'yes'
