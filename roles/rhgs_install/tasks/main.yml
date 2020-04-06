@@ -46,5 +46,5 @@
     state: present
     nodes: 
       - "{{ item }}"
-  loop: "{{ groups['all'] }}"
-
+  #loop: "{{ groups['all'] }}"
+  loop: "{{ group['{{ private }}'] }}"

@@ -9,18 +9,24 @@
 ## usage: -e "sysprep=yes"
 - hosts: "{{ host }}"
   gather_facts: false
-  vars_prompt:
-  - name: "rhn_user"
-    prompt: "RHN Username"
-    private: no
-  - name: "rhn_pass"
-    prompt: "RHN Password"
-  - name: "rhn_pool"
-    prompt: "RHN Pool"
-    private: no
+
+  pre_tasks:
+    - pause:
+        prompt: "RHN username"
+      when: sysprep == 'yes'
+      register: rhn_user
+    - pause:
+        prompt: "RHN password"
+        echo: no
+      when: sysprep == 'yes'
+      register: rhn_pass
+    - pause:
+        prompt: "RHN Pool ID"
+      when: sysprep == 'yes'
+      register: rhn_pool
   roles:
   - role: roles/sysprep
-    when: sysprep=yes
+    when: sysprep == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
 ## enable & start the services and peer the 
@@ -29,6 +35,7 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_install
+    when: install == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster NFS Ganesha with SELINUX, configure firewall,
 ## and enable & start the services.
@@ -36,7 +43,7 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_nfs
-    when: nfs=yes
+    when: nfs == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster SMB with AD integration, configure firewall,
 ## and enable & start the services.
@@ -44,5 +51,5 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
-    when: smb=yes
+    when: smb == 'yes'
 
