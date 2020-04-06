@@ -19,7 +19,7 @@
   yum: 
     name: "@RH-Gluster-AD-Integration"
     state: latest
-  when: smbad=yes
+  when: smbad == 'yes'
 
 - name: Configure firewall (TCP) for SMB
   become: yes

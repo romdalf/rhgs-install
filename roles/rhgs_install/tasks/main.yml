@@ -47,4 +47,4 @@
     nodes: 
       - "{{ item }}"
   #loop: "{{ groups['all'] }}"
-  loop: "{{ group['{{ private }}'] }}"
+  loop: "{{ query('inventory_hostnames', '{{ private }}') }}"

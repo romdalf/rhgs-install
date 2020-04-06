@@ -7,7 +7,7 @@
 ## and do a yum upgrade
 ##
 ## usage: -e "sysprep=yes"
-- hosts: "{{ host }}"
+- hosts: "{{ public }}"
   gather_facts: false
 
   pre_tasks:
@@ -30,7 +30,7 @@
 ## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
 ## enable & start the services and peer the 
 ## the nodes to create the cluster.
-- hosts: "{{ host }}"
+- hosts: "{{ public }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_install
@@ -38,7 +38,7 @@
 
 ## use this role to install the minimum Red Hat Gluster NFS Ganesha with SELINUX, configure firewall,
 ## and enable & start the services.
-- hosts: "{{ host }}"
+- hosts: "{{ public }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_nfs
@@ -46,7 +46,7 @@
 
 ## use this role to install the minimum Red Hat Gluster SMB with AD integration, configure firewall,
 ## and enable & start the services.
-- hosts: "{{ host }}"
+- hosts: "{{ public }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
