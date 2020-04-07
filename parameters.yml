@@ -1,0 +1,20 @@
+---
+## enable/disable role tasks
+public: DPUB
+private: DPRI
+sysprep: no
+install: no
+nfs: no 
+smb: no 
+smbad: no 
+firewalld: no
+lvm: no
+
+## settings for logical volume
+volname: 
+vgname: "gfsvg_{{ volname }}"
+thinpool: "gfstp_{{ volname }}"
+lvname: "gfslv_{{volname }}"
+blockdevice: sdc
+
+## settings for gluster volume

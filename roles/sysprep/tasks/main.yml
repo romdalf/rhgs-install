@@ -10,7 +10,8 @@
 
 - debug:
     msg: "Logging in as {{ rhn_user }} with pool {{ rhn_pool }}" 
-
+  when: status.rc|int > 0
+  
 - name: Subscribe to RHN
   become: yes
   redhat_subscription: username={{ rhn_user }} password={{ rhn_pass }} pool={{ rhn_pool }}

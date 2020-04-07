@@ -1,0 +1,64 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Create volume directory
+  file: 
+    path: "/rhgs_{{ volname }}"
+    state: directory
+# mkdir /rhgs_volname
+
+- name: Create PV & volume group 
+  lvg:
+    vg: "{{ vgname }}"
+    pvs: "/dev/{{ blockdevice }}"
+    pesize: 256K
+# pvcreate --dataalignment 256K /dev/sdx
+# vgreate --physicalextentsize 256K vg_name /dev/sdx
+
+- name: Create Thin Pool for logical volume
+  lvol:
+    vg: "{{ vgname }}"
+    thinpool: "{{ thinpool }}"
+    size: 100%FREE
+# lvcreate --thin vg_name/pool_name --size TOTALsize G/T --chunksize 256K --poolmetadatasize 16G --zero n
+
+- name: Create thin logical volume
+  lvol: 
+    vg: "{{ vgname }}"
+    lv: "{{ lvname}}"
+    thinpool: "{{ thinpool }}"
+    size: 100%FREE
+
+# lvcreate --virtualize size_brick --thin vg_name/pool_name --name lv_vol 
+
+- name: Create XFS filesystem for logical volume
+  filesystems:
+    fstype: xfs
+    dev: "/dev/{{ vgname }}/vol"
+# mkfs.xfs lv_vol
+
+- name: Mount logical volume
+  mount: 
+    path: "/rhgs_{{ volname }}"
+    src: "/dev/{{ vgname }}/vol"
+    fstype: xfs
+    state: mounted
+# mount filesystem
+ 
+- name: Update fstab entry
+
+# etc/fstab
+# /dev/volgroup/volname     /rhgs_volname   xfs     rw,inode64,noatime,nouuid,x-systemd.device-timeout=10min  1 2
+
+- name: Configure SELinux context for bricks
+  sefcontext: 
+    target: "/rhgs_{{ volname }}"
+    setype: glusterd_brick_t
+    state: present
+- name: Apply SELinux context 
+  command: restorecon -Rv /rhgs_volname/brick1 
+# semanage fcontext -a -t glusterd_brick_t /rhgs_volname/brick1
+# restorecon -Rv /rhgs_volname/brick1
+

@@ -11,18 +11,18 @@
   gather_facts: false
 
   pre_tasks:
-    - block:
-        - pause:
-            prompt: "RHN username"
-          register: rhn_user
-        - pause:
-            prompt: "RHN password"
-            echo: no
-          register: rhn_pass
-        - pause:
-            prompt: "RHN Pool ID"
-          register: rhn_pool
-      when: sysprep == 'yes' 
+    # - block:
+    #     - pause:
+    #         prompt: "RHN username"
+    #       register: rhn_user
+    #     - pause:
+    #         prompt: "RHN password"
+    #         echo: no
+    #       register: rhn_pass
+    #     - pause:
+    #         prompt: "RHN Pool ID"
+    #       register: rhn_pool
+    #   when: sysprep == 'yes' 
   roles:
   - role: roles/sysprep
     when: sysprep == 'yes'
@@ -34,6 +34,15 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_install
+    when: install == 'yes'
+
+## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
+## enable & start the services and peer the 
+## the nodes to create the cluster.
+- hosts: "{{ public }}[0]"
+  gather_facts: false
+  roles: 
+  - role: roles/rhgs_peering
     when: install == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster NFS Ganesha with SELINUX, configure firewall,
