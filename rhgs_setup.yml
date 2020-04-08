@@ -25,6 +25,7 @@
     #   when: sysprep == 'yes' 
   roles:
   - role: roles/sysprep
+    become: yes
     when: sysprep == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
@@ -34,6 +35,7 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_install
+    become: yes
     when: install == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
@@ -43,6 +45,7 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_peering
+    become: yes
     when: install == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster NFS Ganesha with SELINUX, configure firewall,
@@ -51,6 +54,7 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_nfs
+    become: yes
     when: nfs == 'yes'
 
 ## use this role to install the minimum Red Hat Gluster SMB with AD integration, configure firewall,
@@ -59,5 +63,38 @@
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
+    become: yes
     when: smb == 'yes'
 
+## LVM DATA
+- hosts: "{{ public }}[0:3]"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_lvm
+    become: yes
+    when: lvm == 'yes'
+
+## LVM ARB
+- hosts: "{{ public }}[4:5]"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_lvm
+    become: yes
+    when: lvm == 'yes'
+
+## Gluster volume
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_gfsvol
+    become: yes
+    when: gfsvol == 'yes'
+
+
+## Gluster volume cleanup
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/zcleanup
+    become: yes
+    when: zcleanup == 'yes'

@@ -1,20 +1,31 @@
 ---
-## enable/disable role tasks
+## settings to target a set of hosts from the inventory
 public: DPUB
-private: DPRI
-sysprep: no
-install: no
-nfs: no 
-smb: no 
-smbad: no 
-firewalld: no
-lvm: no
+private: DPUB
 
-## settings for logical volume
-volname: 
+## settings to enable the lvm and gluster volume creation
+lvm: "yes"
+gfsvol: "yes"
+
+## settings to create a gluster volume and its backend
+volname: ASED
+blockdevice: sdc
+
+## settings for naming conventions/can be changed at will
 vgname: "gfsvg_{{ volname }}"
 thinpool: "gfstp_{{ volname }}"
 lvname: "gfslv_{{volname }}"
-blockdevice: sdc
 
-## settings for gluster volume
+
+## to use to install a new set of gluster nodes
+sysprep: "no" 
+install: "no"
+nfs: "no" 
+smb: "no"
+smbad: "no" 
+firewalld: "no"
+
+## !!! decommission a volume !!!
+## delete the volume and all the LVM backend
+## resulting in data deletion
+zcleanup: "no"

@@ -2,6 +2,7 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
+
 - name: Verify if host is already registered 
   become: yes
   ignore_errors: true
@@ -11,7 +12,7 @@
 - debug:
     msg: "Logging in as {{ rhn_user }} with pool {{ rhn_pool }}" 
   when: status.rc|int > 0
-  
+
 - name: Subscribe to RHN
   become: yes
   redhat_subscription: username={{ rhn_user }} password={{ rhn_pass }} pool={{ rhn_pool }}

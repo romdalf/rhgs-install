@@ -1,0 +1,50 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Remove volume 
+  gluster_volume: 
+    state: absent
+    name: "{{ volname }}"
+  run_once: true
+  ignore_errors: yes
+
+- name: Umount logical volume
+  mount: 
+    path: "/rhgsbricks/{{ volname }}"
+    src: "/dev/{{ vgname }}/{{ lvname }}"
+    fstype: xfs
+    state: absent
+  ignore_errors: yes
+
+- name: Remove brick directory
+  file: 
+    path: "/rhgsbricks/{{ volname }}"
+    state: absent
+  ignore_errors: yes
+
+- name: Delete thin logical volume
+  lvol: 
+    vg: "{{ vgname }}"
+    lv: "{{ lvname }}"
+    thinpool: "{{ thinpool }}"
+    state: absent
+    force: yes
+  ignore_errors: yes
+
+- name: Delete Thin Pool for logical volume
+  lvol:
+    vg: "{{ vgname }}"
+    thinpool: "{{ thinpool }}"
+    state: absent
+    force: yes
+  ignore_errors: yes
+
+- name: Remove a volume group
+  lvg:
+    vg: "{{ vgname }}"
+    state: absent
+  ignore_errors: yes
+
+
