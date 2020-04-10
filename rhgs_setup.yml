@@ -60,6 +60,16 @@
 ## use this role to install the minimum Red Hat Gluster SMB with AD integration, configure firewall,
 ## and enable & start the services.
 - hosts: "{{ public }}"
+  pre_tasks:
+    - block:
+        - pause:
+            prompt: "AD ADMIN User"
+          register: ad_user
+        - pause:
+            prompt: "AD ADMIN Password"
+            echo: no
+          register: ad_pass
+      when: smbad == 'yes' 
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
@@ -90,6 +100,13 @@
     become: yes
     when: gfsvol == 'yes'
 
+## Gluster volume activate SMB
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_gfsvol_smb
+    become: yes
+    when: smbshare != ''
 
 ## Gluster volume cleanup
 - hosts: "{{ public }}"

@@ -8,7 +8,7 @@
     state: present
     name: "{{ volname }}"
     bricks: "/rhgsbricks/{{ volname }}/brick1"
-    cluster: "{{ groups[private] | join(',') }}"  
+    cluster: "{{ groups[public] | join(',') }}"  
     replicas: 3
     arbiters: 1
   run_once: true

@@ -1,15 +1,16 @@
 ---
 ## settings to target a set of hosts from the inventory
-public: DPUB
-private: DPUB
+public: EPUB
+private: EPUB
 
 ## settings to enable the lvm and gluster volume creation
-lvm: "yes"
-gfsvol: "yes"
+lvm: "no"
+gfsvol: "no"
+smbshare: ""  # enable/disable
 
 ## settings to create a gluster volume and its backend
-volname: ASED
-blockdevice: sdc
+volname: ""
+blockdevice: ""
 
 ## settings for naming conventions/can be changed at will
 vgname: "gfsvg_{{ volname }}"
@@ -17,6 +18,13 @@ thinpool: "gfstp_{{ volname }}"
 lvname: "gfslv_{{volname }}"
 
 
+
+
+
+
+
+
+## DANGEROUS OPTIONS
 ## to use to install a new set of gluster nodes
 sysprep: "no" 
 install: "no"

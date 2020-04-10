@@ -2,11 +2,11 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
+
 - name: Peer gluster nodes
-  become: yes
   gluster_peer:
     state: present
     nodes: 
       - "{{ item }}"
-  #loop: "{{ groups['all'] }}"
-  loop: "{{ query('inventory_hostnames', '{{ private }}') }}"
+  loop: "{{ groups[public] }}"
+  #loop: "{{ query('inventory_hostnames', '{{ public }}') }}"
