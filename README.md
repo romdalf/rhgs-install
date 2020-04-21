@@ -7,6 +7,15 @@ some specific modifications to match a specific customer deployment.
 These set of plays allows the installation of RHGS on a defined set of hosts.
 To run the play, you will have to set up 2 files; the inventory and parameters files.
 
+
+## Run the plays
+To run the plays, the volume syntax needs to be setup:
+
+```
+$ ansible-playbook -i inventory -e "@parameters.yml" rhgs_setup.yml
+```
+
+
 ### Inventory file
 The file inventory contains the list of hosts under a label. All the active nodes need to be 
 added to within there respective set. The current inventory has 3 environments defined as such:
@@ -80,12 +89,5 @@ firewalld: "no"                         ## "firewalld" defines if firewalld need
 ## resulting in data deletion
 zcleanup: "no"                          ## "zcleanup" defines if a volume needs to be decommissioned 
 
-```
-
-## Run the plays
-To run the plays, the volume syntax needs to be setup:
-
-```
-$ ansible-playbook -i inventory -e "@parameters.yml" rhgs_setup.yml
 ```
 
