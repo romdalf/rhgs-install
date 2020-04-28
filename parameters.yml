@@ -1,7 +1,6 @@
 ---
 ## settings to target a set of hosts from the inventory
-public: EPUB
-private: EPUB
+public: TEST
 
 ## settings to enable the lvm and gluster volume creation
 lvm: "no"
@@ -16,12 +15,6 @@ blockdevice: ""
 vgname: "gfsvg_{{ volname }}"
 thinpool: "gfstp_{{ volname }}"
 lvname: "gfslv_{{volname }}"
-
-
-
-
-
-
 
 
 ## DANGEROUS OPTIONS

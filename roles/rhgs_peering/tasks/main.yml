@@ -9,4 +9,5 @@
     nodes: 
       - "{{ item }}"
   loop: "{{ groups[public] }}"
+  run_once: true
   #loop: "{{ query('inventory_hostnames', '{{ public }}') }}"
