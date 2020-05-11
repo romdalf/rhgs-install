@@ -9,7 +9,7 @@ smbshare: ""  # enable/disable
 
 ## settings to create a gluster volume and its backend
 volname: ""
-blockdevice: ""
+blockdevice: "/dev/"
 
 ## settings for naming conventions/can be changed at will
 vgname: "gfsvg_{{ volname }}"

@@ -11,7 +11,7 @@
 - name: Create PV & volume group 
   lvg:
     vg: "{{ vgname }}"
-    pvs: "/dev/{{ blockdevice }}"
+    pvs: "{{ blockdevice }}"
     pesize: 256K
 
 - name: Create Thin Pool for logical volume
