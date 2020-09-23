@@ -1,0 +1,29 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Activate SMB for GlusterFS volume "{{ volname }}"
+  gluster_volume:
+    state: present
+    name: "{{ volname }}"
+    options:
+      { user.smb: "on",
+        group: "samba"
+      }
+#    cluster: "{{ groups[public] | join(',') }}"  
+  when: smbshare == "enable"
+  run_once: true
+
+- name: Disable SMB for GlusterFS volume "{{ volname }}"
+  gluster_volume:
+    state: present
+    name: "{{ volname }}"
+    options:
+      { user.smb: "off",
+      }
+#    cluster: "{{ groups[public] | join(',') }}"  
+  when: smbshare == "disable"
+  run_once: true
+
+

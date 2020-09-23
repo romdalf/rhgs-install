@@ -1,88 +1,108 @@
 # rhgs_install
-Plays to deploy Red Hat Gluster Storage
+The repository contains the necessary Ansible automation to deploy instances of GlusterFS.
+Even if this Ansible plays have been written as generic as possible, this branch might have 
+some specific modifications to match a specific customer deployment.
 
 ## Introduction 
-These set of plays allows the installation of RHGS on a defined set of hosts defined in the inventory file. Currently, the plays have been tested using RHN and not Satellite. 
+These set of plays allows the installation of RHGS on a defined set of hosts.
+To run the play, you will have to set up 2 files; the inventory and parameters files.
 
-To run the play, the following vars need to be set:
-
-* rhn_user; as a valid RHN user name 
-* rhn_pass; as the related password from the used RHN user name
-* rhn_pool; as a pool id (check subscription-manager list --available)
-* host; as a group of host defined in inventory file
-* nfs; as [blank,yes] to deploy/or not NFS Ganesha 
-* smb; as [blank,yes] to deploy/or not Gluster SMB
-
-Example of run:
+## Run the plays
+To run the plays, the volume syntax needs to be setup:
 
 ```
-$ cat inventory
-[dev]
-rhel7-01 ansible_host=192.168.122.157 
-rhel7-02 ansible_host=192.168.122.18
-
-$ ansible-playbook rhgs_setup.yml -i inventory -e "rhn_user=myrhnuser rh_pool=000000000000000000000000000 host=dev"
-
-RHN Password: 
-
-PLAY [dev] ***********************************************************************************************
-
-TASK [roles/sysprep : Verify if host is already registered] **********************************************
-fatal: [rhel7-02]: FAILED! => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python"}, "changed": true, "cmd": "subscription-manager status", "delta": "0:00:05.464408", "end": "2019-12-16 11:12:31.932991", "msg": "non-zero return code", "rc": 1, "start": "2019-12-16 11:12:26.468583", "stderr": "", "stderr_lines": [], "stdout": "+-------------------------------------------+\n   System Status Details\n+-------------------------------------------+\nOverall Status: Invalid\n\nRed Hat Enterprise Linux Server:\n- Not supported by a valid subscription.\n\nSystem Purpose Status: Not Specified", "stdout_lines": ["+-------------------------------------------+", "   System Status Details", "+-------------------------------------------+", "Overall Status: Invalid", "", "Red Hat Enterprise Linux Server:", "- Not supported by a valid subscription.", "", "System Purpose Status: Not Specified"]}
-...ignoring
-changed: [rhel7-01]
-
-TASK [roles/sysprep : debug] *****************************************************************************
-ok: [rhel7-01] => {
-    "msg": "Logging in as myrhnuser with pool 000000000000000000000000000"
-}
-ok: [rhel7-02] => {
-    "msg": "Logging in as myrhnuser with pool 000000000000000000000000000"
-}
-
-TASK [roles/sysprep : Subscribe to RHN] ******************************************************************
-skipping: [rhel7-01]
-changed: [rhel7-02]
-
-TASK [roles/sysprep : Disable Repositories] **************************************************************
-changed: [rhel7-02]
-changed: [rhel7-01]
-
-TASK [roles/sysprep : Enable Repositories] ***************************************************************
-changed: [rhel7-02]
-changed: [rhel7-01]
-
-TASK [roles/sysprep : Update system] *********************************************************************
-ok: [rhel7-01]
-changed: [rhel7-02]
-
-PLAY [dev] ***********************************************************************************************
-
-TASK [roles/rhgs_install : Install RHGS] *****************************************************************
-ok: [rhel7-01]
-changed: [rhel7-02]
-
-TASK [roles/rhgs_install : Configure firewall (TCP) for RHGS node communication] *************************
-changed: [rhel7-02] => (item=22)
-ok: [rhel7-01] => (item=22)
-changed: [rhel7-02] => (item=111)
-ok: [rhel7-01] => (item=111)
-changed: [rhel7-02] => (item=24007)
-ok: [rhel7-01] => (item=24007)
-ok: [rhel7-01] => (item=24009)
-changed: [rhel7-02] => (item=24009)
-ok: [rhel7-01] => (item=49152-49664)
-changed: [rhel7-02] => (item=49152-49664)
-
-TASK [roles/rhgs_install : Configure firewall (UDP) for RHGS node communication] *************************
-ok: [rhel7-01] => (item=111)
-changed: [rhel7-02] => (item=111)
-
-PLAY [dev] ***********************************************************************************************
-
-PLAY [dev] ***********************************************************************************************
-
-PLAY RECAP ***********************************************************************************************
-rhel7-01                   : ok=8    changed=3    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
-rhel7-02                   : ok=9    changed=8    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+$ ansible-playbook -i inventory -e "@parameters.yml" rhgs_setup.yml
 ```
+
+### Inventory file
+The file inventory contains the list of hosts under a label. All the active nodes need to be 
+added to within there respective set. The current inventory has 3 environments defined as such:
+
+```
+[DPUB]
+10.28.64.1
+10.28.64.2
+10.28.64.5
+10.28.64.3
+10.28.64.4
+10.28.64.6
+
+[EPUB]
+10.36.64.1
+10.36.64.2
+10.36.64.5
+10.36.64.3
+10.36.64.4
+10.36.64.6
+
+[PPUB]
+10.32.64.1
+10.32.64.2
+10.32.64.5
+10.32.64.3
+10.32.64.4
+10.32.64.6
+```
+
+Note: the labels are fully customizable. Use whatever you like.
+
+### Parameters file
+The parameters file contains all the necessary variables to execute the plays with Ansible. This file can be taken as
+reference for a Tower usage. 
+
+```
+---
+## Inventory related settings
+public: DPUB                            ## "public" defines the targeted set of nodes
+
+
+## Provisioning related settings
+gfsvol: "no"                        ## "gfsvol" switches on/off the creation of GlusterFS volume
+                                    ## if "no" none of the below will be working
+volname: ""                         ## "volname" defines the name for a new volume to be created
+blockdevice: ""                     ## "blockdevice" defines the device name to be used for the LVM (ie. sdc)
+lvm: "no"                           ## "lvm" switches on/off the creation of the LVM layers based on "blockdevice"
+smbshare: ""    # enable/disable    ## "smbshare" switches on/off 
+
+
+
+## Naming conventions settings
+vgname: "gfsvg_{{ volname }}"       ## "vgname" defines the volume group name
+thinpool: "gfstp_{{ volname }}"     ## "thinpool" defines the thin pool name
+lvname: "gfslv_{{volname }}"        ## "lvname" defines the logical volume name
+
+
+
+## Installation settings
+## to use to install a new set of GlusteFS nodes
+sysprep: "no"                       ## "sysprep" defines if the system needs to be subscribed 
+install: "no"                       ## "install" defines if GlusterFS needs to be deployed
+nfs: "no"                           ## "nfs" defines if NFS Ganesha needs to be deployed
+smb: "no"                           ## "smb" defines if Samba needs to be deployed
+smbad: "no"                         ## "smbad" defines if AD integration needs to be deployed
+firewalld: "no"                     ## "firewalld" defines if firewalld needs to be configured
+
+## Decommission settings
+## delete the volume and all the LVM backend
+## resulting in data deletion
+zcleanup: "no"                      ## "zcleanup" defines if a volume needs to be decommissioned 
+
+```
+
+## Folders
+Note that for sake of clarity a different approach regarding role folder structure has been taken.
+
+```
+roles
+--rhgs_gfsvol                       ## provision a GlusterFS volume  
+--rhgs_gfsvol_smb                   ## enable SMB for a GlusterFS volume
+--rhgs_install                      ## install GlusterFS cluster
+--rhgs_lvm                          ## provision LVM backend elements for GlusterFS volume
+--rhgs_nfs                          ## install clustered NFS Ganesha
+--rhgs_peering                      ## peer GlusterFS nodes together
+--rhgs_smb                          ## install clustered SMB
+--sysprep                           ## perform system preparation to deploy GlusterFS
+--zcleanup                          ## decommission volume
+```
+
+

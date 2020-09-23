@@ -1,0 +1,32 @@
+---
+## settings to target a set of hosts from the inventory
+public: TEST
+
+## settings to enable the lvm and gluster volume creation
+lvm: "no"
+gfsvol: "no"
+smbshare: ""  # enable/disable
+
+## settings to create a gluster volume and its backend
+volname: ""
+blockdevice: "/dev/"
+
+## settings for naming conventions/can be changed at will
+vgname: "gfsvg_{{ volname }}"
+thinpool: "gfstp_{{ volname }}"
+lvname: "gfslv_{{volname }}"
+
+
+## DANGEROUS OPTIONS
+## to use to install a new set of gluster nodes
+sysprep: "no" 
+install: "no"
+nfs: "no" 
+smb: "no"
+smbad: "no" 
+firewalld: "no"
+
+## !!! decommission a volume !!!
+## delete the volume and all the LVM backend
+## resulting in data deletion
+zcleanup: "no"

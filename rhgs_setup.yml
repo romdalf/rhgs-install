@@ -2,34 +2,116 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
-- hosts: "{{ host }}"
+
+## use this role to prepare the system with subscription manager, enabling required repositories
+## and do a yum upgrade
+##
+## usage: -e "sysprep=yes"
+- hosts: "{{ public }}"
   gather_facts: false
-  vars_prompt:
-  - name: "rhn_user"
-    prompt: "RHN Username"
-    private: no
-  - name: "rhn_pass"
-    prompt: "RHN Password"
-  - name: "rhn_pool"
-    prompt: "RHN Pool"
-    private: no
+
+  pre_tasks:
+    # - block:
+    #     - pause:
+    #         prompt: "RHN username"
+    #       register: rhn_user
+    #     - pause:
+    #         prompt: "RHN password"
+    #         echo: no
+    #       register: rhn_pass
+    #     - pause:
+    #         prompt: "RHN Pool ID"
+    #       register: rhn_pool
+    #   when: sysprep == 'yes' 
   roles:
   - role: roles/sysprep
+    become: yes
+    when: sysprep == 'yes'
 
-- hosts: "{{ host }}"
+## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
+## enable & start the services and peer the 
+## the nodes to create the cluster.
+- hosts: "{{ public }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_install
+    become: yes
+    when: install == 'yes'
 
-- hosts: "{{ host }}"
+## use this role to install the minimum Red Hat Gluster Storage Group packages, configure firewall,
+## enable & start the services and peer the 
+## the nodes to create the cluster.
+- hosts: "{{ public }}[0]"
+  gather_facts: false
+  roles: 
+  - role: roles/rhgs_peering
+    become: yes
+    when: install == 'yes'
+
+## use this role to install the minimum Red Hat Gluster NFS Ganesha with SELINUX, configure firewall,
+## and enable & start the services.
+- hosts: "{{ public }}"
   gather_facts: false
   roles: 
   - role: roles/rhgs_nfs
-    when: nfs=yes
+    become: yes
+    when: nfs == 'yes'
 
-- hosts: "{{ host }}"
+## use this role to install the minimum Red Hat Gluster SMB with AD integration, configure firewall,
+## and enable & start the services.
+- hosts: "{{ public }}"
+  pre_tasks:
+    - block:
+        - pause:
+            prompt: "AD ADMIN User"
+          register: ad_user
+        - pause:
+            prompt: "AD ADMIN Password"
+            echo: no
+          register: ad_pass
+      when: smbad == 'yes' 
   gather_facts: false
   roles: 
   - role: roles/rhgs_smb
-    when: smb=yes
+    become: yes
+    when: smb == 'yes'
 
+## LVM DATA
+- hosts: "{{ public }}[0:3]"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_lvm
+    become: yes
+    when: lvm == 'yes'
+
+## LVM ARB
+- hosts: "{{ public }}[4:5]"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_lvm
+    become: yes
+    when: lvm == 'yes'
+
+## Gluster volume
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_gfsvol
+    become: yes
+    when: gfsvol == 'yes'
+
+## Gluster volume activate SMB
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/rhgs_gfsvol_smb
+    become: yes
+    when: smbshare != ''
+
+## Gluster volume cleanup
+- hosts: "{{ public }}"
+  gather_facts: false
+  roles:
+  - role: roles/zcleanup
+    become: yes
+    when: zcleanup == 'yes'

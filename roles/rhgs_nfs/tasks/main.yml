@@ -2,14 +2,13 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
+
 - name: Install RHGS NFS Ganesha Support
-  become: yes
   yum: 
     name: "glusterfs-ganesha,nfs-ganesha-selinux"
     state: latest
 
 - name: Edit sysconfig nfs file for statd ports 
-  become: yes
   ignore_errors: true
   shell: "sed -i '/STATD_PORT/s/^{{ '#' }}//' /etc/sysconfig/nfs"
   register: status
@@ -30,7 +29,6 @@
     enabled: no
 
 - name: Configure firewall (TCP) for NFS Ganesha
-  become: yes
   firewalld: 
     zone: public
     port: "{{ item }}/tcp"
@@ -38,9 +36,9 @@
     state: enabled
     immediate: yes
   with_items: [622,875,2049,2224,3121,20048,21064,32803]
+  when: firewalld == "yes"
 
 - name: Configure firewall (UDP) for NFS Ganesha
-  become: yes
   firewalld: 
     zone: public 
     port: "{{item}}/udp"
@@ -48,5 +46,6 @@
     state: enabled
     immediate: yes
   with_items: [662,875,2049,5404,5405,20048,32803,32769]
+  when: firewalld == "yes"
 
  

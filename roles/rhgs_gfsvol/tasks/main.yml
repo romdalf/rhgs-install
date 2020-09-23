@@ -1,0 +1,15 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Create GlusterFS volume
+  gluster_volume:
+    state: present
+    name: "{{ volname }}"
+    bricks: "/rhgsbricks/{{ volname }}/brick1"
+    cluster: "{{ groups[public] | join(',') }}"  
+    replicas: 3
+    arbiters: 1
+  run_once: true
+

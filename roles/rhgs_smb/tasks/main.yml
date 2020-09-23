@@ -1,0 +1,134 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Configure firewall (TCP) for CTDB and SMB
+  firewalld: 
+    zone: public
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  with_items: [622,875,2049,2224,3121,4379,20048,21064,32803]
+  when: firewalld == "yes"
+
+- name: Configure firewall (UDP) for SMB
+  firewalld: 
+    zone: public 
+    port: "{{item}}/udp"
+    permanent: true 
+    state: enabled
+    immediate: yes
+  with_items: [662,875,2049,5404,5405,20048,32803,32769]
+  when: firewalld == "yes"
+
+- name: Enable Repositories
+  rhsm_repository: 
+    name: "rh-gluster-3-samba-for-rhel-7-server-rpms"
+    state: enabled
+
+- name: Install CTDB Support
+  yum: 
+    name: "ctdb"
+    state: latest
+
+- name: Create volume directory for CTDB
+  file: 
+    path: "/rhgsbricks/ctdb_smb"
+    state: directory
+
+- name: Configure SELinux context for bricks
+  sefcontext: 
+    target: "/rhgsbricks/ctdb_smb"
+    setype: glusterd_brick_t
+    state: present
+
+- name: Apply SELinux context 
+  become: yes
+  command: restorecon -Rv "/rhgsbricks/ctdb_smb" 
+
+- name: Create GlusterFS volume
+  gluster_volume:
+    state: present
+    name: "ctdb_smb"
+    bricks: "/rhgsbricks/ctdb_smb/brick1"
+    cluster: "{{ groups[public] | join(',') }}"  
+    replicas: 6
+    force: yes
+  run_once: true
+
+- name: Change META to match CTDB volume name
+  ignore_errors: true
+  shell: "sed -i '/META=\"all\"/s/.*/META=\"ctdb_smb\"/' /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh"
+  register: status  
+
+- name: Change META to match CTDB volume name
+  ignore_errors: true
+  shell: "sed -i '/META=\"all\"/s/.*/META=\"ctdb_smb\"/' /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh"
+  register: status  
+
+- name: Install RHGS SMB Support
+  yum: 
+    name: "@RH-Gluster-Samba-Server"
+    state: latest
+
+- name: Install RHGS SMB AD Integration
+  yum: 
+    name: "@RH-Gluster-AD-Integration"
+    state: latest
+  when: smbad == 'yes'
+
+- name: Modify SMB configuration file 
+  copy:
+    src: "../files/smb_conf_{{ public }}"
+    dest: /etc/samba/smb.conf
+
+## do not remove as per https://bugzilla.redhat.com/show_bug.cgi?id=1201952
+- name: Modify CTDB service configuration file 
+  copy:
+    src: "../files/ctdb_conf"
+    dest: /etc/ctdb/ctdb.conf
+
+- name: Create CTDB node configuration file 
+  copy:
+    src: "../files/ctdb_nodes_{{ public }}"
+    dest: /etc/ctdb/nodes
+
+# - name: Join system to AD and put the computer object in the Linux OU
+#   expect:
+#     command: /bin/bash -c "/usr/bin/net ads join -U {{ ad_user }}"
+#     responses:
+#       Password for *: "{{ ad_pass }}"
+#   when: smbad == 'yes'
+#   ignore_errors: true
+
+- name: Start CTDB Service
+  service: 
+    name: ctdb
+    enabled: yes
+
+- name: Start SMB Service
+  service: 
+    name: smb
+    enabled: yes
+
+- name: Start Winbind Service
+  service: 
+    name: winbind
+    enabled: yes    
+
+- name: Start CTDB Service
+  service: 
+    name: ctdb
+    state: restarted
+
+- name: Start Winbind Service
+  service: 
+    name: winbind
+    state: restarted
+
+- name: Start SMB Service
+  service: 
+    name: smb
+    state: restarted

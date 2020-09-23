@@ -1,0 +1,54 @@
+#-------------------------------------------------------------------------------------------#
+# Ansible Playbook for RHGS
+# 2019 - romuald@redhat.com 
+#-------------------------------------------------------------------------------------------#
+
+- name: Create volume directory
+  file: 
+    path: "/rhgsbricks/{{ volname }}"
+    state: directory
+
+- name: Create PV & volume group 
+  lvg:
+    vg: "{{ vgname }}"
+    pvs: "{{ blockdevice }}"
+    pesize: 256K
+
+- name: Create Thin Pool for logical volume
+  lvol:
+    vg: "{{ vgname }}"
+    thinpool: "{{ thinpool }}"
+    size: 100%FREE
+
+- name: Check thin pool size
+  shell: lvs --noheadings --units m -o lv_size '{{ vgname}}/{{ thinpool}}' | sed 's/^ *//' 
+  register: lvsize
+
+- name: Create thin logical volume
+  lvol: 
+    vg: "{{ vgname }}"
+    lv: "{{ lvname }}"
+    thinpool: "{{ thinpool }}"
+    size: "{{ lvsize.stdout }}"
+
+- name: Create XFS filesystem for logical volume
+  filesystem:
+    fstype: xfs
+    dev: "/dev/{{ vgname }}/{{ lvname }}" 
+
+- name: Mount logical volume
+  mount: 
+    path: "/rhgsbricks/{{ volname }}"
+    src: "/dev/{{ vgname }}/{{ lvname }}"
+    fstype: xfs
+    state: mounted
+
+- name: Configure SELinux context for bricks
+  sefcontext: 
+    target: "/rhgsbricks/{{ volname }}"
+    setype: glusterd_brick_t
+    state: present
+- name: Apply SELinux context 
+  become: yes
+  command: restorecon -Rv "/rhgsbricks/{{ volname }}" 
+

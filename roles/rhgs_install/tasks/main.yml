@@ -2,14 +2,13 @@
 # Ansible Playbook for RHGS
 # 2019 - romuald@redhat.com 
 #-------------------------------------------------------------------------------------------#
+
 - name: Install RHGS
-  become: yes
   yum:
     name: "redhat-storage-server"
     state: latest
 
 - name: Configure firewall (TCP) for RHGS node communication
-  become: yes
   firewalld: 
     zone: public
     port: "{{ item }}/tcp"
@@ -17,9 +16,9 @@
     state: enabled
     immediate: yes
   with_items: [22,111,24007,24009,49152-49664]
+  when: firewalld == "yes"
 
 - name: Configure firewall (UDP) for RHGS node communication
-  become: yes
   firewalld: 
     zone: public
     port: "{{ item }}/udp"
@@ -27,24 +26,14 @@
     state: enabled
     immediate: yes
   with_items: [111]
+  when: firewalld == "yes"
 
 - name: Enable Gluster Service
-  become: yes
   service:
     name: glusterd
     enabled: yes
 
 - name: Start Gluster Service
-  become: yes
   service: 
     name: glusterd
     state: started
-
-- name: Peer gluster nodes
-  become: yes
-  gluster_peer:
-    state: present
-    nodes: 
-      - "{{ item }}"
-  loop: "{{ groups['all'] }}"
-

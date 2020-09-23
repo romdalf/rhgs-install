@@ -1,4 +1,31 @@
-[dev]
-rhel7-01 ansible_host=192.168.122.157 
-rhel7-02 ansible_host=192.168.122.18
+[TEST]
+test01  ansible_host=xxx.xxx.xxx.xxx
+
+[RHGSD]
+# brick set 1
+hostname ansible_host=10.28.64.1
+hostname ansible_host=10.28.64.3
+hostname ansible_host=10.28.64.5
+# brick set 2
+hostname ansible_host=10.28.64.2
+hostname ansible_host=10.28.64.4
+hostname ansible_host=10.28.64.6
+
+[RHGSE]
+10.36.64.1
+10.36.64.3
+10.36.64.5
+#
+10.36.64.2
+10.36.64.4
+10.36.64.6
+
+[RHGSP]
+10.32.64.1
+10.32.64.3
+10.32.64.5
+#
+10.32.64.2
+10.32.64.4
+10.32.64.6
 

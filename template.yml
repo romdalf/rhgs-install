@@ -1,0 +1,35 @@
+- hosts: "{{ public }}"
+  gather_facts: False
+  remote_user: root    
+
+  tasks:
+  - debug:
+      msg: "hostname {{ item }} and IP {{ ansible_host }}" 
+    loop: "{{ groups[public] }}"
+
+  - name: smb.conf template 
+    template:
+      src: files/smb_conf.j2
+      dest: /etc/smb.conf
+
+
+# [rovandep][44518][rhgs_install]$ ansible-playbook -i inventory -e "@parameters.yml" template.yml 
+
+# PLAY [TEST] ************************************************************************************************************************
+
+# TASK [debug] ***********************************************************************************************************************
+# ok: [test01] => (item=test01) => {
+#     "msg": "hostname test01 and IP xxx.xxx.xxx.xxx"
+# }
+
+# TASK [smb.conf template] ***********************************************************************************************************
+# changed: [test01]
+
+# PLAY RECAP *************************************************************************************************************************
+# test01                     : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+# [rovandep][44518][rhgs_install]$ ssh root@test01 cat /etc/smb.conf
+# # smb.conf example
+
+# [global]
+# netbios name = ['test01']
